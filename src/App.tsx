@@ -20,6 +20,7 @@ import {
   Info
 } from 'lucide-react';
 import { jsPDF } from 'jspdf';
+import { toPng } from 'html-to-image';
 import html2canvas from 'html2canvas';
 
 import { SURVEY_TEMPLATES } from './data';
@@ -206,54 +207,72 @@ export default function App() {
         throw new Error('PDF Element not found');
       }
 
-      // Safe defense against cross-origin or extension-injected stylesheets that crash html2canvas
-      const styleElements = document.querySelectorAll('link[rel="stylesheet"], style');
-      styleElements.forEach((el) => {
-        const htmlEl = el as HTMLLinkElement | HTMLStyleElement;
-        try {
-          if (htmlEl.sheet) {
-            // Force access to cssRules. If it throws, it's a cross-origin sheet that crashes html2canvas.
-            const rules = htmlEl.sheet.cssRules;
+      let imgData: string;
+
+      try {
+        // Primary modern approach: html-to-image (Uses native SVG foreignObject, crash-proof against CSS variables & Tailwind layer bugs)
+        imgData = await toPng(element, {
+          quality: 0.95,
+          pixelRatio: 2.0, // Balanced high-resolution
+          backgroundColor: '#ffffff',
+          style: {
+            transform: 'scale(1)',
+            transformOrigin: 'top left',
           }
-        } catch (e) {
-          // This is an inaccessible sheet (CORS / extension injected).
-          // We temporarily disable it so html2canvas doesn't crash trying to parse it.
+        });
+      } catch (toPngError) {
+        console.warn('Primary toPng rendering failed, falling back to html2canvas...', toPngError);
+
+        // Safe defense against cross-origin or extension-injected stylesheets that crash html2canvas
+        const styleElements = document.querySelectorAll('link[rel="stylesheet"], style');
+        styleElements.forEach((el) => {
+          const htmlEl = el as HTMLLinkElement | HTMLStyleElement;
           try {
-            htmlEl.disabled = true;
-            disabledStylesheets.push(htmlEl);
-          } catch (err) {
-            // Ignore if we can't disable it
+            if (htmlEl.sheet) {
+              // Force access to cssRules. If it throws, it's a cross-origin sheet that crashes html2canvas.
+              const rules = htmlEl.sheet.cssRules;
+            }
+          } catch (e) {
+            // This is an inaccessible sheet (CORS / extension injected).
+            // We temporarily disable it so html2canvas doesn't crash trying to parse it.
+            try {
+              htmlEl.disabled = true;
+              disabledStylesheets.push(htmlEl);
+            } catch (err) {
+              // Ignore if we can't disable it
+            }
           }
-        }
-      });
+        });
 
-      // Let html2canvas render the element
-      const canvas = await html2canvas(element, {
-        scale: 2.2, // Balanced crisp resolution & memory footprint
-        useCORS: true,
-        allowTaint: true,
-        logging: false,
-        backgroundColor: '#ffffff',
-        scrollX: 0,
-        scrollY: 0,
-        windowWidth: element.scrollWidth,
-        windowHeight: element.scrollHeight,
-        x: 0,
-        y: 0,
-        width: element.scrollWidth,
-        height: element.scrollHeight,
-      });
+        // Let html2canvas render the element
+        const canvas = await html2canvas(element, {
+          scale: 2.0, // Balanced crisp resolution & memory footprint
+          useCORS: true,
+          allowTaint: true,
+          logging: false,
+          backgroundColor: '#ffffff',
+          scrollX: 0,
+          scrollY: 0,
+          windowWidth: element.scrollWidth,
+          windowHeight: element.scrollHeight,
+          x: 0,
+          y: 0,
+          width: element.scrollWidth,
+          height: element.scrollHeight,
+        });
 
-      // Restore style elements immediately after canvas is rendered
-      disabledStylesheets.forEach((el) => {
-        try {
-          el.disabled = false;
-        } catch (e) {
-          // Ignore
-        }
-      });
+        // Restore style elements immediately after canvas is rendered
+        disabledStylesheets.forEach((el) => {
+          try {
+            el.disabled = false;
+          } catch (e) {
+            // Ignore
+          }
+        });
 
-      const imgData = canvas.toDataURL('image/png');
+        imgData = canvas.toDataURL('image/png');
+      }
+
       const pdf = new jsPDF({
         orientation: 'portrait',
         unit: 'mm',
@@ -261,7 +280,20 @@ export default function App() {
       });
 
       const imgWidth = 210; // A4 width in mm
-      const imgHeight = (canvas.height * imgWidth) / canvas.width;
+      let imgHeight = 297; // Default A4 height fallback
+      
+      try {
+        const img = new Image();
+        img.src = imgData;
+        await new Promise<void>((resolve, reject) => {
+          img.onload = () => resolve();
+          img.onerror = () => reject();
+          setTimeout(() => reject(new Error('Image load timeout')), 2000);
+        });
+        imgHeight = (img.height * imgWidth) / img.width;
+      } catch (dimErr) {
+        console.warn('Failed to calculate perfect image dimensions, fallback to default A4 page height:', dimErr);
+      }
       
       pdf.addImage(imgData, 'PNG', 0, 0, imgWidth, imgHeight);
 
@@ -289,7 +321,7 @@ export default function App() {
       pdf.save(`${selectedTemplate.title}_${signerName}_확인서.pdf`);
     } catch (err) {
       console.error('Core PDF generation failed completely:', err);
-      setValidationError('PDF 생성 중 오류가 발생했습니다. 브라우저 확장 프로그램 스타일 시트와의 충돌이나 iframe 다운로드 제한 때문일 수 있습니다. 서명 수정을 누른 후 다시 한 번 시도해 주세요.');
+      setValidationError('PDF 생성 중 오류가 발생했습니다. 브라우저 확장 프로그램 스타일 시트와의 충돌이나 iframe 다운로드 제한 때문일 수 있습니다. 상단의 주소창에서 "새 창으로 열기" 버튼을 누르시거나, 서명 수정을 누른 후 다시 한 번 시도해 주세요.');
     } finally {
       // Safely ensure everything is restored in case of any unhandled errors
       disabledStylesheets.forEach((el) => {
