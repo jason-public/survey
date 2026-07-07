@@ -1,0 +1,6 @@
+{
+  "name": "Survey Document Signer",
+  "description": "A premium, Toss-style survey application that lets users fill out custom questionnaires, sign electronically or upload signature images, and export clean, legal-ready PDFs with high-fidelity signature merging.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
