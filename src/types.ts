@@ -6,6 +6,7 @@ export interface Question {
   required: boolean;
   options?: string[];
   category: string;
+  tooltip?: string;
 }
 
 export interface SurveyTemplate {

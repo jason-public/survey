@@ -22,7 +22,8 @@ export const SURVEY_TEMPLATES: SurveyTemplate[] = [
         label: '휴대폰 번호',
         placeholder: '010-1234-5678',
         required: true,
-        category: '기본 정보'
+        category: '기본 정보',
+        tooltip: '입력하신 연락처 정보는 본인 식별 및 전자서명 체결 사실 입증 용도로만 안전하게 보관됩니다.'
       },
       {
         id: 'email',
@@ -42,7 +43,8 @@ export const SURVEY_TEMPLATES: SurveyTemplate[] = [
           '단순 서비스 상담 및 CS 민원 대응'
         ],
         required: true,
-        category: '활용 목적'
+        category: '활용 목적',
+        tooltip: '선택하신 목적의 범위를 벗어나 무단으로 개인정보를 사용하거나 제3자에게 임의 제공하지 않습니다.'
       },
       {
         id: 'retention',
@@ -54,7 +56,8 @@ export const SURVEY_TEMPLATES: SurveyTemplate[] = [
           '회원 탈퇴 또는 서비스 해지 시까지'
         ],
         required: true,
-        category: '보유 기간'
+        category: '보유 기간',
+        tooltip: '선택하신 보유 기간이 경과하거나 목적 달성 시 귀하의 모든 개인정보는 즉각 안전하게 분쇄/영구 파기됩니다.'
       },
       {
         id: 'marketing_channels',
@@ -67,7 +70,8 @@ export const SURVEY_TEMPLATES: SurveyTemplate[] = [
           '앱 푸시 알림'
         ],
         required: false,
-        category: '수신 동의'
+        category: '수신 동의',
+        tooltip: '마케팅 채널 수신에 동의하지 않으셔도, 필수 공지나 금융 안전 거래 안내 등의 기본 알림은 정상 발송됩니다.'
       }
     ],
     legalText: '본 동의서에 명시된 개인정보는 동의 목적 외의 용도로 절대 사용되지 않으며, 개인정보 보호책임자의 엄격한 통제 하에 안전하게 관리됩니다. 귀하는 개인정보 수집 및 이용에 대한 동의를 거부할 권리가 있으며, 동의 거부 시 서비스 이용 및 혜택 안내에 제한이 있을 수 있습니다.'
@@ -120,7 +124,8 @@ export const SURVEY_TEMPLATES: SurveyTemplate[] = [
           '보통 (기한을 준수했으나 일부 마이너 이슈 수정 필요)'
         ],
         required: true,
-        category: '만족도 검수'
+        category: '만족도 검수',
+        tooltip: '과업지시서에 정의된 기능 명세 및 개발 마일스톤 준수 여부를 종합적으로 반영한 업무 완성도 지표입니다.'
       },
       {
         id: 'delivery_comment',
@@ -128,7 +133,8 @@ export const SURVEY_TEMPLATES: SurveyTemplate[] = [
         label: '특이 사항 및 인수인계 의견',
         placeholder: '정상 작동 확인 완료. 추가 보증수리 범위 및 가이드는 별첨 인수인계서를 따릅니다.',
         required: false,
-        category: '종합 의견'
+        category: '종합 의견',
+        tooltip: '보증수리(Warrany) 범위, 소스코드 이관 등 최종 합의된 예외 조항이나 협의 사항이 있는 경우 상세히 기입합니다.'
       }
     ],
     legalText: '발주인은 수급인이 납품한 산출물에 대해 철저한 테스트 및 검수를 거쳐 기능이 상호 계약한 사양대로 완벽히 작동함을 증명합니다. 본 확인서에 양 당사자가 최종 서명함으로써, 기납품된 과업에 대한 정식 검수가 완료되며 대금 청구 및 정산 프로세스가 승인됩니다.'
@@ -172,7 +178,8 @@ export const SURVEY_TEMPLATES: SurveyTemplate[] = [
           '2점 이하 (불만족스러우며 주요 오류나 속도 지연을 겪음)'
         ],
         required: true,
-        category: '만족도 평점'
+        category: '만족도 평점',
+        tooltip: '작성해주시는 평점 데이터는 제품 개발팀 및 UX 연구 부서에 전달되어 향후 업데이트 로드맵에 우선적으로 반영됩니다.'
       },
       {
         id: 'feedback_detail',
@@ -180,7 +187,8 @@ export const SURVEY_TEMPLATES: SurveyTemplate[] = [
         label: '서비스 사용 시 겪었던 불만이나 가장 필요한 개선점',
         placeholder: '이체 및 결제 단계에서 터치 반응 속도를 0.1초만 더 개선해주시면 좋겠습니다. 그 외에 전체적인 애니메이션은 아주 만족스럽습니다.',
         required: true,
-        category: '의견 접수'
+        category: '의견 접수',
+        tooltip: '불편을 겪으셨던 특정 기기, 재현 경로, 바라는 기능 개선안 등을 가능한 구체적으로 공유해주시면 신속히 보완하겠습니다.'
       },
       {
         id: 'followup_contact',

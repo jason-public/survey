@@ -207,6 +207,15 @@ export default function App() {
         throw new Error('PDF Element not found');
       }
 
+      // Wait for all custom fonts to finish loading to prevent layout shifts or empty text
+      if (document.fonts && document.fonts.ready) {
+        try {
+          await document.fonts.ready;
+        } catch (fontErr) {
+          console.warn('Font loading promise failed, proceeding anyway:', fontErr);
+        }
+      }
+
       let imgData: string;
 
       try {
@@ -478,9 +487,28 @@ export default function App() {
                   <div className="space-y-5">
                     {selectedTemplate.questions.map((q) => (
                       <div key={q.id} className="group relative border-b border-gray-100 pb-5">
-                        <label className="block text-sm font-bold text-gray-800 mb-2">
-                          {q.label}
-                          {q.required && <span className="text-rose-500 ml-1">*</span>}
+                        <label className="flex items-center gap-1.5 text-sm font-bold text-gray-800 mb-2">
+                          <span>{q.label}</span>
+                          {q.required && <span className="text-rose-500">*</span>}
+                          {q.tooltip && (
+                            <div className="relative group/tooltip inline-block">
+                              <button
+                                type="button"
+                                className="text-gray-400 hover:text-[#3182F6] transition-colors focus:outline-none"
+                                title={q.tooltip}
+                                aria-label="도움말"
+                              >
+                                <Info className="w-4 h-4 cursor-help" />
+                              </button>
+                              <div className="absolute left-0 bottom-full mb-2 hidden group-hover/tooltip:block w-64 p-3 bg-slate-900 text-white text-xs font-normal leading-relaxed rounded-xl shadow-xl z-50 animate-fade-in pointer-events-none">
+                                <div className="relative">
+                                  {q.tooltip}
+                                  {/* Triangle arrow */}
+                                  <div className="absolute top-full left-2.5 w-2 h-2 bg-slate-900 rotate-45 transform origin-top-left -mt-1" />
+                                </div>
+                              </div>
+                            </div>
+                          )}
                         </label>
 
                         {/* TEXT TYPE */}
@@ -588,6 +616,14 @@ export default function App() {
                                 </label>
                               );
                             })}
+                          </div>
+                        )}
+
+                        {/* Contextual help box for enhanced clarity */}
+                        {q.tooltip && (
+                          <div className="mt-2.5 flex items-start gap-1.5 p-3 bg-gray-50 rounded-2xl border border-gray-100/70">
+                            <Info className="w-3.5 h-3.5 text-[#3182F6] shrink-0 mt-0.5" />
+                            <span className="text-xs text-gray-500 font-medium leading-relaxed">{q.tooltip}</span>
                           </div>
                         )}
                       </div>
